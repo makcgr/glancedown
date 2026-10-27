@@ -1,0 +1,85 @@
+:root {
+  --gd-background: #ffffff;
+  --gd-button-background: rgba(246, 248, 250, 0.9);
+  --gd-button-border: #d0d7de;
+  --gd-button-text: #57606a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --gd-background: #0d1117;
+    --gd-button-background: rgba(33, 38, 45, 0.9);
+    --gd-button-border: #30363d;
+    --gd-button-text: #8b949e;
+  }
+}
+
+html, body {
+  margin: 0;
+  background: var(--gd-background);
+}
+
+.markdown-body {
+  box-sizing: border-box;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 32px 45px 64px;
+}
+
+.markdown-body pre {
+  position: relative;
+}
+
+.markdown-body li:has(> input[type="checkbox"]:first-child) {
+  list-style-type: none;
+}
+
+.markdown-body li > input[type="checkbox"]:first-child {
+  margin: 0 0.35em 0.2em -1.4em;
+  vertical-align: middle;
+}
+
+.markdown-body pre code.hljs {
+  padding: 0;
+  background: transparent;
+}
+
+.gd-copy {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 2px 8px;
+  font: 12px -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--gd-button-text);
+  background: var(--gd-button-background);
+  border: 1px solid var(--gd-button-border);
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.markdown-body pre:hover .gd-copy,
+.gd-copy:focus-visible {
+  opacity: 1;
+}
+
+.gd-mermaid {
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.gd-math-display {
+  margin-bottom: 16px;
+  overflow-x: auto;
+}
+
+@media print {
+  .markdown-body {
+    max-width: none;
+    padding: 0;
+  }
+  .gd-copy {
+    display: none;
+  }
+}
