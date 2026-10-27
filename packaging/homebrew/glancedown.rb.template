@@ -1,0 +1,18 @@
+cask "glancedown" do
+  version "{{VERSION}}"
+  sha256 "{{SHA256}}"
+
+  url "https://github.com/makcgr/glancedown/releases/download/v#{version}/Glancedown-#{version}.dmg"
+  name "Glancedown"
+  desc "Lightweight Markdown viewer with syntax highlighting, zoom and Quick Look"
+  homepage "https://github.com/makcgr/glancedown"
+
+  depends_on macos: ">= :sonoma"
+
+  app "Glancedown.app"
+
+  zap trash: [
+    "~/Library/Preferences/io.github.makcgr.glancedown.plist",
+    "~/Library/Saved Application State/io.github.makcgr.glancedown.savedState",
+  ]
+end

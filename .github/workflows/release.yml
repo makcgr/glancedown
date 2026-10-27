@@ -1,0 +1,86 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-15
+    env:
+      VERSION: ${{ github.ref_name }}
+      HAS_SIGNING: ${{ secrets.DEVELOPER_ID_P12 != '' }}
+      HAS_TAP: ${{ secrets.HOMEBREW_TAP_TOKEN != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Version from tag
+        run: echo "VERSION=${VERSION#v}" >> "$GITHUB_ENV"
+
+      - name: Test
+        run: swift test
+
+      - name: Import Developer ID certificate
+        if: env.HAS_SIGNING == 'true'
+        env:
+          P12: ${{ secrets.DEVELOPER_ID_P12 }}
+          P12_PASSWORD: ${{ secrets.DEVELOPER_ID_P12_PASSWORD }}
+          IDENTITY: ${{ secrets.DEVELOPER_ID_IDENTITY }}
+          NOTARY_KEY: ${{ secrets.NOTARY_KEY_P8 }}
+        run: |
+          KEYCHAIN="$RUNNER_TEMP/signing.keychain-db"
+          security create-keychain -p "" "$KEYCHAIN"
+          security set-keychain-settings -lut 3600 "$KEYCHAIN"
+          security unlock-keychain -p "" "$KEYCHAIN"
+          echo "$P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN" -P "$P12_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | tr -d '"')
+          echo "$NOTARY_KEY" > "$RUNNER_TEMP/notary.p8"
+          echo "SIGN_IDENTITY=$IDENTITY" >> "$GITHUB_ENV"
+          echo "NOTARY_KEY_PATH=$RUNNER_TEMP/notary.p8" >> "$GITHUB_ENV"
+
+      - name: Build universal app
+        run: UNIVERSAL=1 BUILD_NUMBER=${{ github.run_number }} ./scripts/bundle.sh
+
+      - name: Package
+        env:
+          NOTARY_KEY_ID: ${{ secrets.NOTARY_KEY_ID }}
+          NOTARY_ISSUER_ID: ${{ secrets.NOTARY_ISSUER_ID }}
+        run: ./scripts/package.sh
+
+      - name: Render cask
+        run: |
+          SHA=$(cut -d' ' -f1 "dist/Glancedown-$VERSION.dmg.sha256")
+          sed -e "s/{{VERSION}}/$VERSION/" -e "s/{{SHA256}}/$SHA/" \
+            packaging/homebrew/glancedown.rb.template > dist/glancedown.rb
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          NOTES="See CHANGELOG.md."
+          if [[ "$HAS_SIGNING" != "true" ]]; then
+            NOTES="$NOTES
+
+          This build is not notarized. On first launch macOS blocks it: open System Settings → Privacy & Security and click **Open Anyway**."
+          fi
+          gh release create "v$VERSION" dist/Glancedown-$VERSION.dmg dist/Glancedown-$VERSION.dmg.sha256 dist/glancedown.rb \
+            --title "Glancedown $VERSION" --notes "$NOTES"
+
+      - name: Update Homebrew tap
+        if: env.HAS_TAP == 'true'
+        env:
+          TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        run: |
+          git clone "https://x-access-token:$TAP_TOKEN@github.com/makcgr/homebrew-tap.git" tap
+          mkdir -p tap/Casks && cp dist/glancedown.rb tap/Casks/glancedown.rb
+          cd tap
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Casks/glancedown.rb
+          git commit -m "glancedown $VERSION"
+          git push

@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test
+        run: swift test
+      - name: Build universal app
+        run: UNIVERSAL=1 ./scripts/bundle.sh
+      - name: Render fixtures
+        run: |
+          swift build --product RenderSnapshot
+          mkdir -p snapshots
+          for f in fixtures/*.md; do
+            name=$(basename "$f" .md)
+            .build/debug/RenderSnapshot "$f" "snapshots/$name-light.png"
+            .build/debug/RenderSnapshot "$f" "snapshots/$name-dark.png" --dark
+          done
+      - name: Hostile fixture stays inert
+        run: |
+          swift build --product RenderSnapshot
+          .build/debug/RenderSnapshot fixtures/hostile.md snapshots/hostile-check.png --assert-no-text PWNED
+      - uses: actions/upload-artifact@v4
+        with:
+          name: snapshots
+          path: snapshots/

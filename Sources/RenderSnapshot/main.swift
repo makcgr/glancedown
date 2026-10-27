@@ -1,5 +1,6 @@
 // Dev tool: renders a Markdown file through RenderCore and saves a PNG of the page.
-// Usage: render-snapshot <file.md> <out.png> [--dark] [--width 980] [--zoom 1.0]
+// Usage: render-snapshot <file.md> <out.png> [--dark] [--width 980] [--zoom 1.0] [--assert-no-text TEXT]
+// With --assert-no-text it exits 3 when the rendered page text contains TEXT.
 import AppKit
 import RenderCore
 import WebKit
@@ -18,11 +19,18 @@ func option(_ name: String) -> Double? {
 }
 let width = option("--width") ?? 980
 let zoom = option("--zoom") ?? 1.0
+let forbiddenText = arguments.firstIndex(of: "--assert-no-text").flatMap { $0 + 1 < arguments.count ? arguments[$0 + 1] : nil }
 
 final class Snapshotter: NSObject, WKNavigationDelegate {
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         // Give Mermaid and KaTeX time to load and render.
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            webView.evaluateJavaScript("document.documentElement.innerText") { text, _ in
+                if let forbiddenText, let text = text as? String, text.contains(forbiddenText) {
+                    FileHandle.standardError.write(Data("page contains forbidden text '\(forbiddenText)'\n".utf8))
+                    exit(3)
+                }
+            }
             webView.evaluateJavaScript("document.documentElement.scrollHeight") { result, _ in
                 let height = (result as? Double) ?? 2000
                 webView.frame.size.height = CGFloat(height * zoom)
