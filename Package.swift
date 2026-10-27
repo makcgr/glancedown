@@ -8,6 +8,7 @@ let package = Package(
         .library(name: "RenderCore", targets: ["RenderCore"]),
         .executable(name: "Glancedown", targets: ["Glancedown"]),
         .executable(name: "GlancedownQuickLook", targets: ["GlancedownQuickLook"]),
+        .executable(name: "GlancedownEditor", targets: ["GlancedownEditor"]),
     ],
     dependencies: [
         .package(url: "https://github.com/swiftlang/swift-cmark.git", exact: "0.9.0"),
@@ -32,6 +33,10 @@ let package = Package(
                 .unsafeFlags(["-Xlinker", "-e", "-Xlinker", "_NSExtensionMain"]),
                 .linkedFramework("QuickLookUI"),
             ]
+        ),
+        .executableTarget(
+            name: "GlancedownEditor",
+            dependencies: ["RenderCore"]
         ),
         .executableTarget(
             name: "RenderSnapshot",

@@ -1,6 +1,15 @@
-// Draws the app icon and writes Support/AppIcon.icns.
-// Usage: swift scripts/make-icon.swift
+// Draws an app icon and writes it as .icns.
+// Usage: swift scripts/make-icon.swift            -> Support/AppIcon.icns (viewer)
+//        swift scripts/make-icon.swift editor     -> Support/EditorIcon.icns
 import AppKit
+
+let isEditor = CommandLine.arguments.dropFirst().first == "editor"
+let colors = isEditor
+    ? [NSColor(srgbRed: 0.10, green: 0.70, blue: 0.55, alpha: 1), NSColor(srgbRed: 0.05, green: 0.45, blue: 0.60, alpha: 1)]
+    : [NSColor(srgbRed: 0.18, green: 0.51, blue: 0.97, alpha: 1), NSColor(srgbRed: 0.35, green: 0.25, blue: 0.85, alpha: 1)]
+let markColor = isEditor
+    ? NSColor(srgbRed: 0.05, green: 0.50, blue: 0.55, alpha: 1)
+    : NSColor(srgbRed: 0.27, green: 0.33, blue: 0.92, alpha: 1)
 
 let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
 let iconset = FileManager.default.temporaryDirectory.appendingPathComponent("AppIcon.iconset")
@@ -20,10 +29,7 @@ func drawIcon(size: CGFloat) -> NSBitmapImageRep {
     // macOS icon grid: 824pt body centered in a 1024pt canvas.
     let body = NSRect(x: 100, y: 100, width: 824, height: 824).applying(.init(scaleX: scale, y: scale))
     let shape = NSBezierPath(roundedRect: body, xRadius: 185 * scale, yRadius: 185 * scale)
-    NSGradient(colors: [
-        NSColor(srgbRed: 0.18, green: 0.51, blue: 0.97, alpha: 1),
-        NSColor(srgbRed: 0.35, green: 0.25, blue: 0.85, alpha: 1),
-    ])!.draw(in: shape, angle: -60)
+    NSGradient(colors: colors)!.draw(in: shape, angle: -60)
 
     // A page with a folded corner.
     let page = NSRect(x: 290, y: 210, width: 444, height: 584).applying(.init(scaleX: scale, y: scale))
@@ -40,9 +46,9 @@ func drawIcon(size: CGFloat) -> NSBitmapImageRep {
 
     let attributes: [NSAttributedString.Key: Any] = [
         .font: NSFont.systemFont(ofSize: 230 * scale, weight: .heavy),
-        .foregroundColor: NSColor(srgbRed: 0.27, green: 0.33, blue: 0.92, alpha: 1),
+        .foregroundColor: markColor,
     ]
-    let mark = NSAttributedString(string: "M↓", attributes: attributes)
+    let mark = NSAttributedString(string: isEditor ? "M✎" : "M↓", attributes: attributes)
     let markSize = mark.size()
     mark.draw(at: NSPoint(x: page.midX - markSize.width / 2, y: page.midY - markSize.height / 2 - 20 * scale))
 
@@ -59,7 +65,7 @@ for points in [16, 32, 128, 256, 512] {
     }
 }
 
-let output = root.appendingPathComponent("Support/AppIcon.icns")
+let output = root.appendingPathComponent(isEditor ? "Support/EditorIcon.icns" : "Support/AppIcon.icns")
 let iconutil = Process()
 iconutil.executableURL = URL(fileURLWithPath: "/usr/bin/iconutil")
 iconutil.arguments = ["-c", "icns", iconset.path, "-o", output.path]

@@ -65,6 +65,14 @@ public enum PageWebView {
         )
     }
 
+    public static func scrollToHeading(_ webView: WKWebView, index: Int) async {
+        _ = try? await webView.callAsyncJavaScript(
+            "window.glancedown && window.glancedown.scrollToHeadingIndex(index)",
+            arguments: ["index": index],
+            contentWorld: .page
+        )
+    }
+
     public static func scrollToHeading(_ webView: WKWebView, id: String) async {
         _ = try? await webView.callAsyncJavaScript(
             "window.glancedown && window.glancedown.scrollToHeading(id)",

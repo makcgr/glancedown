@@ -23,6 +23,8 @@ public final class DocumentPage {
     public let rootURL: URL
     public let pageURL: URL
     public var renderer: MarkdownRenderer
+    /// Supplies unsaved text (the editor); when nil the file is read from disk.
+    public var contentProvider: (() -> String)?
 
     public init(fileURL: URL, rootURL: URL? = nil, renderer: MarkdownRenderer = MarkdownRenderer()) {
         let file = fileURL.standardizedFileURL.resolvingSymlinksInPath()
@@ -54,9 +56,11 @@ public final class DocumentPage {
     }
 
     public func renderBody() throws -> String {
+        if let contentProvider {
+            return renderer.html(from: contentProvider())
+        }
         let data = try Data(contentsOf: fileURL)
-        let text = String(decoding: data, as: UTF8.self)
-        return renderer.html(from: text)
+        return renderer.html(from: String(decoding: data, as: UTF8.self))
     }
 
     public func renderPage() throws -> String {

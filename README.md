@@ -1,6 +1,6 @@
 # Glancedown
 
-A lightweight Markdown viewer for macOS. Native Swift app, system WebKit, no Electron.
+A lightweight Markdown viewer for macOS, with a small companion editor. Native Swift apps, system WebKit, no Electron.
 
 <p align="center">
   <img src="docs/screenshot-light.png" width="48%" alt="Glancedown in light mode">
@@ -19,11 +19,23 @@ A lightweight Markdown viewer for macOS. Native Swift app, system WebKit, no Ele
 - **Relative links and images** work: `other.md` opens in a new window, `../images/x.png` loads from your repository.
 - Find (⌘F), Open in Editor (⌘E), Print and Save as PDF (⌘P), Show in Finder (⇧⌘R).
 
+## Glancedown Editor
+
+A separate, small app for writing Markdown, installed next to the viewer:
+
+- Plain-text editor with Markdown syntax colouring (headings, emphasis, code, links, lists, quotes).
+- Live preview beside the editor, rendered exactly like the viewer. The preview follows the section you are editing.
+- Format shortcuts: Bold ⌘B, Italic ⌘I, Strikethrough ⇧⌘X, Inline code ⇧⌘C, Link ⌘K.
+- Show or hide the preview with ⌥⌘P. ⌘+ / ⌘− change the editor font and the preview zoom together.
+- Find and replace (⌘F) from the standard macOS find bar.
+
+The viewer's **Open in Editor** (⌘E) uses Glancedown Editor when it is installed. The viewer stays the default app for `.md` files.
+
 ## Install
 
 ### Download
 
-Get the latest `.dmg` from [Releases](https://github.com/makcgr/glancedown/releases) and drag Glancedown to Applications.
+Get the latest `.dmg` from [Releases](https://github.com/makcgr/glancedown/releases) and drag Glancedown (and, if you want it, Glancedown Editor) to Applications.
 
 > Releases are not notarized yet. On first launch macOS blocks the app. Open **System Settings → Privacy & Security** and click **Open Anyway**, or run:
 >
@@ -45,7 +57,7 @@ Needs macOS 14+ and Swift 6 (Xcode 16+ or the Command Line Tools). A locally bui
 git clone https://github.com/makcgr/glancedown.git
 cd glancedown
 ./scripts/bundle.sh
-cp -R build/Glancedown.app /Applications/
+cp -R build/Glancedown.app "build/Glancedown Editor.app" /Applications/
 ```
 
 ## Make it the default viewer
@@ -62,7 +74,7 @@ To turn on the Quick Look preview, open Glancedown once, then check **System Set
 
 ## Open in Editor
 
-⌘E opens the file in the first editor it finds: VS Code, Cursor, Zed, Sublime Text, BBEdit, Nova, then TextEdit. To pick one:
+⌘E opens the file in the first editor it finds: Glancedown Editor, VS Code, Cursor, Zed, Sublime Text, BBEdit, Nova, then TextEdit. To pick one:
 
 ```bash
 defaults write io.github.makcgr.glancedown editorBundleID com.microsoft.VSCode

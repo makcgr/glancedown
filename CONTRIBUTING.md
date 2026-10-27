@@ -8,7 +8,7 @@ Requirements: macOS 14+, Swift 6 (Xcode 16+ or the Command Line Tools).
 
 ```bash
 ./scripts/test.sh            # unit tests (works with Xcode or Command Line Tools)
-./scripts/bundle.sh          # builds build/Glancedown.app
+./scripts/bundle.sh          # builds build/Glancedown.app and build/Glancedown Editor.app
 open build/Glancedown.app --args fixtures/features.md
 ```
 
@@ -26,6 +26,7 @@ swift build --product RenderSnapshot
 | `Sources/RenderCore` | Markdown → HTML, the `glancedown://` scheme handler, the page template and scripts. Shared by every target. |
 | `Sources/Glancedown` | The viewer app (SwiftUI). |
 | `Sources/GlancedownQuickLook` | The Quick Look preview extension. |
+| `Sources/GlancedownEditor` | The companion editor app (TextKit 2 editor + live preview). |
 | `Sources/RenderSnapshot` | Dev tool that renders a file to PNG; used in CI. |
 | `fixtures/` | Sample documents, including `hostile.md`, which must always render inert. |
 

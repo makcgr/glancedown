@@ -1,11 +1,12 @@
 import AppKit
 
-/// Opens a file in a text editor other than Glancedown itself.
+/// Opens a file in a text editor: Glancedown Editor when installed, otherwise a common code editor.
 enum EditorLauncher {
     /// Set with `defaults write io.github.makcgr.glancedown editorBundleID <id>` to force an editor.
     static let preferenceKey = "editorBundleID"
 
     private static let knownEditors = [
+        "io.github.makcgr.glancedown.editor",
         "com.microsoft.VSCode",
         "com.todesktop.230313mzl4w4u92",  // Cursor
         "dev.zed.Zed",

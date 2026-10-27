@@ -64,3 +64,14 @@ struct DocumentPageTests {
         #expect(html.contains("Content-Security-Policy"))
     }
 }
+
+struct ContentProviderTests {
+    @Test func rendersUnsavedTextInsteadOfTheFile() throws {
+        let page = DocumentPage(
+            fileURL: FileManager.default.temporaryDirectory.appendingPathComponent("Untitled.md"),
+            rootURL: FileManager.default.temporaryDirectory
+        )
+        page.contentProvider = { "# Draft" }
+        #expect(try page.renderBody().contains("<h1>Draft</h1>"))
+    }
+}

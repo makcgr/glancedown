@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds Glancedown.app (with the Quick Look extension) into build/.
+# Builds Glancedown.app (viewer + Quick Look extension) and Glancedown Editor.app into build/.
 #
 # Environment:
 #   VERSION        marketing version written into Info.plist (default: from Support/Glancedown-Info.plist)
@@ -21,8 +21,10 @@ BIN="$(swift build "${BUILD_ARGS[@]}" --show-bin-path)"
 
 APP="$ROOT/build/Glancedown.app"
 APPEX="$APP/Contents/PlugIns/GlancedownQuickLook.appex"
-rm -rf "$APP"
+EDITOR="$ROOT/build/Glancedown Editor.app"
+rm -rf "$APP" "$EDITOR"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$APPEX/Contents/MacOS"
+mkdir -p "$EDITOR/Contents/MacOS" "$EDITOR/Contents/Resources"
 
 cp "$BIN/Glancedown" "$APP/Contents/MacOS/"
 cp Support/Glancedown-Info.plist "$APP/Contents/Info.plist"
@@ -32,8 +34,13 @@ cp -R Sources/RenderCore/Web "$APP/Contents/Resources/Web"
 cp "$BIN/GlancedownQuickLook" "$APPEX/Contents/MacOS/"
 cp Support/QuickLook-Info.plist "$APPEX/Contents/Info.plist"
 
+cp "$BIN/GlancedownEditor" "$EDITOR/Contents/MacOS/"
+cp Support/Editor-Info.plist "$EDITOR/Contents/Info.plist"
+cp Support/EditorIcon.icns "$EDITOR/Contents/Resources/"
+cp -R Sources/RenderCore/Web "$EDITOR/Contents/Resources/Web"
+
 if [[ -n "${VERSION:-}" ]]; then
-  for plist in "$APP/Contents/Info.plist" "$APPEX/Contents/Info.plist"; do
+  for plist in "$APP/Contents/Info.plist" "$APPEX/Contents/Info.plist" "$EDITOR/Contents/Info.plist"; do
     /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$plist"
     /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${BUILD_NUMBER:-$VERSION}" "$plist"
   done
@@ -45,5 +52,7 @@ if [[ "$SIGN_IDENTITY" != "-" ]]; then
 fi
 codesign "${SIGN_ARGS[@]}" --entitlements Support/QuickLook.entitlements "$APPEX"
 codesign "${SIGN_ARGS[@]}" "$APP"
+codesign "${SIGN_ARGS[@]}" "$EDITOR"
 codesign --verify --deep --strict "$APP"
-echo "Built $APP ($(lipo -archs "$APP/Contents/MacOS/Glancedown"), signed with '$SIGN_IDENTITY')"
+codesign --verify --deep --strict "$EDITOR"
+echo "Built $APP and $EDITOR ($(lipo -archs "$APP/Contents/MacOS/Glancedown"), signed with '$SIGN_IDENTITY')"

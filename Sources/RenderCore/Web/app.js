@@ -245,6 +245,15 @@
       const target = document.getElementById(id);
       if (target) target.scrollIntoView({ block: "start" });
     },
+    // Editor scroll sync: index -1 means "above the first heading".
+    scrollToHeadingIndex(index) {
+      const target = headings()[index];
+      if (target) {
+        window.scrollTo(0, target.getBoundingClientRect().top + window.scrollY - 8);
+      } else if (index < 0) {
+        window.scrollTo(0, 0);
+      }
+    },
   };
 
   darkScheme.addEventListener("change", () => {

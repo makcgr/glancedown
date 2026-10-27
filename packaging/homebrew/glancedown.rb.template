@@ -10,9 +10,11 @@ cask "glancedown" do
   depends_on macos: ">= :sonoma"
 
   app "Glancedown.app"
+  app "Glancedown Editor.app"
 
   zap trash: [
     "~/Library/Preferences/io.github.makcgr.glancedown.plist",
+    "~/Library/Preferences/io.github.makcgr.glancedown.editor.plist",
     "~/Library/Saved Application State/io.github.makcgr.glancedown.savedState",
   ]
 end
