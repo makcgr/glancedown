@@ -93,6 +93,8 @@ Markdown files from the internet are untrusted, so Glancedown is strict by defau
 
 Markdown is parsed with [cmark-gfm](https://github.com/swiftlang/swift-cmark) (the parser GitHub uses) and shown in a `WKWebView`. highlight.js, Mermaid and KaTeX are bundled, so nothing is fetched from the network. On a file change only the article body is replaced, so scroll position and loaded scripts survive.
 
+The editor's design and its dependencies are described in [docs/editor-architecture.md](docs/editor-architecture.md).
+
 ## License
 
 MIT. See [LICENSE](LICENSE). Bundled components are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
