@@ -48,7 +48,7 @@ func drawIcon(size: CGFloat) -> NSBitmapImageRep {
         .font: NSFont.systemFont(ofSize: 230 * scale, weight: .heavy),
         .foregroundColor: markColor,
     ]
-    let mark = NSAttributedString(string: isEditor ? "M✎" : "M↓", attributes: attributes)
+    let mark = NSAttributedString(string: isEditor ? "G✎" : "G↓", attributes: attributes)
     let markSize = mark.size()
     mark.draw(at: NSPoint(x: page.midX - markSize.width / 2, y: page.midY - markSize.height / 2 - 20 * scale))
 
