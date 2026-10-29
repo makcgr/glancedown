@@ -28,6 +28,7 @@ A separate, small app for writing Markdown, installed next to the viewer:
 - Format shortcuts: Bold ⌘B, Italic ⌘I, Strikethrough ⇧⌘X, Inline code ⇧⌘C, Link ⌘K.
 - Show or hide the preview with ⌥⌘P. ⌘+ / ⌘− change the editor font and the preview zoom together.
 - Find and replace (⌘F) from the standard macOS find bar.
+- Classic saving: ⌘S saves, and closing or quitting with unsaved changes asks first. There is no autosave.
 
 The viewer's **Open in Editor** (⌘E) uses Glancedown Editor when it is installed. The viewer stays the default app for `.md` files.
 

@@ -65,6 +65,12 @@ struct MarkdownEditor: NSViewRepresentable {
             name: NSView.boundsDidChangeNotification,
             object: scrollView.contentView
         )
+        NotificationCenter.default.addObserver(
+            context.coordinator,
+            selector: #selector(Coordinator.storageDidProcessEditing),
+            name: NSTextStorage.didProcessEditingNotification,
+            object: textView.textStorage
+        )
 
         controller.textView = textView
         context.coordinator.textView = textView
@@ -111,9 +117,20 @@ struct MarkdownEditor: NSViewRepresentable {
             textView.typingAttributes = highlighter.typingAttributes
         }
 
-        func textDidChange(_ notification: Notification) {
+        /// Undo, redo and Replace All change the storage without a text-did-change callback, so watch the storage.
+        @objc func storageDidProcessEditing(_ notification: Notification) {
+            guard let storage = notification.object as? NSTextStorage,
+                  storage.editedMask.contains(.editedCharacters),
+                  storage.string != parent.text else { return }
+            parent.text = storage.string
+            // Attributes cannot change while the storage is still processing this edit.
+            RunLoop.main.perform(inModes: [.common]) { [weak self] in
+                MainActor.assumeIsolated { self?.highlightAfterEdit() }
+            }
+        }
+
+        private func highlightAfterEdit() {
             guard let textView else { return }
-            parent.text = textView.string
             pendingHighlight?.cancel()
             guard textView.string.utf16.count > immediateHighlightLimit else {
                 applyHighlighting(fontSize: fontSize)

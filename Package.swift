@@ -46,6 +46,10 @@ let package = Package(
             name: "RenderCoreTests",
             dependencies: ["RenderCore"]
         ),
+        .testTarget(
+            name: "GlancedownEditorTests",
+            dependencies: ["GlancedownEditor"]
+        ),
     ],
     swiftLanguageModes: [.v5]
 )

@@ -9,17 +9,16 @@ enum EditorSettings {
 }
 
 struct EditorView: View {
-    @Binding var document: MarkdownText
-    let fileURL: URL?
+    @Bindable var state: EditorState
+    let controller: EditorController
 
-    @State private var controller = EditorController()
     @State private var preview: PreviewModel?
     @AppStorage(EditorSettings.fontSizeKey) private var fontSize = EditorSettings.defaultFontSize
     @AppStorage(EditorSettings.showPreviewKey) private var showPreview = true
 
     var body: some View {
         HSplitView {
-            MarkdownEditor(text: $document.text, fontSize: fontSize, controller: controller) { index in
+            MarkdownEditor(text: $state.text, fontSize: fontSize, controller: controller) { index in
                 preview?.scroll(toHeadingIndex: index)
             }
             .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
@@ -31,15 +30,14 @@ struct EditorView: View {
         }
         .frame(minWidth: 640, minHeight: 400)
         .onAppear { rebuildPreview() }
-        .onChange(of: fileURL) { rebuildPreview() }
-        .onChange(of: document.text) { preview?.textDidChange(document.text) }
+        .onChange(of: state.fileURL) { rebuildPreview() }
+        .onChange(of: state.text) { preview?.textDidChange(state.text) }
         .onChange(of: fontSize) { preview?.setZoom(fontSize / EditorSettings.defaultFontSize) }
-        .focusedSceneValue(\.editorController, controller)
     }
 
     /// Recreated when the file is first saved or moved, so relative links resolve against the new location.
     private func rebuildPreview() {
-        let model = PreviewModel(fileURL: fileURL, text: document.text)
+        let model = PreviewModel(fileURL: state.fileURL, text: state.text)
         model.setZoom(fontSize / EditorSettings.defaultFontSize)
         preview = model
     }
