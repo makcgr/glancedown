@@ -16,5 +16,11 @@ cask "glancedown" do
     "~/Library/Preferences/io.github.makcgr.glancedown.plist",
     "~/Library/Preferences/io.github.makcgr.glancedown.editor.plist",
     "~/Library/Saved Application State/io.github.makcgr.glancedown.savedState",
+    "~/Library/Saved Application State/io.github.makcgr.glancedown.editor.savedState",
   ]
+
+  caveats <<~EOS
+    This build is not notarized yet. If macOS blocks the first launch, run:
+      xattr -dr com.apple.quarantine "/Applications/Glancedown.app" "/Applications/Glancedown Editor.app"
+  EOS
 end
