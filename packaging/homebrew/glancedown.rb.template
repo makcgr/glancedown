@@ -7,7 +7,7 @@ cask "glancedown" do
   desc "Lightweight Markdown viewer with syntax highlighting, zoom and Quick Look"
   homepage "https://github.com/makcgr/glancedown"
 
-  depends_on macos: ">= :sonoma"
+  depends_on macos: :sonoma
 
   app "Glancedown.app"
   app "Glancedown Editor.app"

@@ -47,6 +47,8 @@ Get the latest `.dmg` from [Releases](https://github.com/makcgr/glancedown/relea
 ### Homebrew
 
 ```bash
+brew tap makcgr/tap
+brew trust makcgr/tap    # Homebrew asks you to trust third-party taps once
 brew install --cask makcgr/tap/glancedown
 ```
 
